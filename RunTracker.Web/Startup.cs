@@ -1,17 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Npgsql;
+using RunTracker.Web.VueCoreConnection;
 
 namespace RunTracker
 {
@@ -21,17 +14,6 @@ namespace RunTracker
         {
             Configuration = configuration;
 
-            //IConfigurationRoot configurationRoot = new ConfigurationBuilder()
-            //    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-            //    .AddJsonFile("appsettings.json")
-            //    .Build();
-
-            //var builder = new ConfigurationBuilder()
-            //    .SetBasePath(Directory.GetCurrentDirectory()) // <== compile failing here
-            //    .AddJsonFile("appsettings.json");
-
-            //Configuration = builder.Build();
-
         }
 
         public IConfiguration Configuration { get; }
@@ -40,6 +22,9 @@ namespace RunTracker
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            // connect vue app - middleware  
+            services.AddSpaStaticFiles(options => options.RootPath = "client-app/dist");
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen();
@@ -56,7 +41,7 @@ namespace RunTracker
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "RunTracker API V1");
             });
 
             if (env.IsDevelopment())
@@ -76,6 +61,17 @@ namespace RunTracker
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            // use middleware and launch server for Vue  
+            app.UseSpaStaticFiles();
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "client-app";
+                if (env.IsDevelopment())
+                {
+                    spa.UseVueDevelopmentServer();
+                }
             });
         }
 
