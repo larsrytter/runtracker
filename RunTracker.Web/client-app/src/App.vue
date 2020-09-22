@@ -2,22 +2,34 @@
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
     <ActiveTrip />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <!-- <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/> -->
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Mixins } from 'vue-property-decorator';
 import HelloWorld from './components/HelloWorld.vue';
 import ActiveTrip from './components/ActiveTrip.vue';
+import TripService from './services/trip.service';
+import Vuex from 'vuex';
+
 
 @Component({
   components: {
-    HelloWorld,
     ActiveTrip
   },
+  mixins: [
+    TripService
+  ]
 })
-export default class App extends Vue {}
+// export default class App extends Vue {
+export default class App extends Mixins(TripService) {
+  private _tripService: TripService | null = null;
+  public created() {
+    console.log('Vue created');
+    // this._tripService = 
+  } 
+}
 </script>
 
 <style>

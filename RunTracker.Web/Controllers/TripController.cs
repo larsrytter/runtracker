@@ -52,7 +52,7 @@ namespace RunTracker.Controllers
 
         [HttpPost]
         [Route("/trip/create")]
-        public async Task<TripDto> CreateTrip(CreateTripDto createTripDto)
+        public async Task<TripDto> CreateTrip([FromBody]CreateTripDto createTripDto)
         {
             TripDto result = null;
             long userId = GetUserId();
