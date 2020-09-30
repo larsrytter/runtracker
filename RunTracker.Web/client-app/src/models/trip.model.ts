@@ -1,7 +1,7 @@
 export default interface TripModel {
-    TripGuid: string;
-    ActivityTypeId: number;
-    TimeStart: Date;
-    TimeEnd: Date|null;
+    tripGuid: string;
+    activityTypeId: number;
+    timeStart: Date;
+    timeEnd: Date|null;
 
 }

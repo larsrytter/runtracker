@@ -1,6 +1,9 @@
 <template>
     <div>
-        <p v-if="isTripActive">Active trip</p>
+        <p v-if="isTripActive">
+            Active trip
+            <button type="button" v-on:click="endTrip()">Finish the trip</button>
+        </p>
         <div v-else>
             No active trip
             <button type="button" v-on:click="startTrip()">Start a new trip</button>
@@ -20,13 +23,13 @@ export default class ActiveTrip extends TripService {
 
     get isTripActive(): boolean {
         let currentTrip: TripModel|null = this.GetActiveTrip();
-        let isTripActive = (currentTrip !== null && currentTrip.TimeEnd === null);
+        let isTripActive: boolean = (currentTrip && currentTrip.timeEnd === null) ? true : false;
         return isTripActive;
     }
     
     startTrip() {
         let currentTrip: TripModel|null = this.GetActiveTrip();
-        if(!currentTrip || currentTrip.TimeEnd !== null) {
+        if(!currentTrip || currentTrip.timeEnd !== null) {
             console.log('start trip');
 
             this.StartNewTrip().then((trip:TripModel) => {
@@ -36,6 +39,10 @@ export default class ActiveTrip extends TripService {
             });
 
         }
+    }
+
+    endTrip() {
+        this.EndCurrentTrip();
     }
 
     // created() {

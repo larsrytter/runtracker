@@ -99,7 +99,7 @@ namespace RunTracker.Controllers
 
         [HttpPost]
         [Route("/trip/{tripGuid}/ticks/add")]
-        public async Task<OkResult> AddTripTick(Guid tripGuid, AddTripTickDto model)
+        public async Task<OkResult> AddTripTick(Guid tripGuid, [FromBody]AddTripTickDto model)
         {
             long userId = GetUserId();
             var trip = await _tripRepository.GetByGuidAndUserIdOrThrowException(tripGuid, userId);

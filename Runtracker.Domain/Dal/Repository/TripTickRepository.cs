@@ -42,7 +42,7 @@ namespace Runtracker.Domain.Dal.Repository
                     string sql = @"INSERT INTO 
                                         trip_tick (""trip_id"", ""order"", ""tick_time"", ""geom"") 
                                     VALUES 
-                                        (@tripId, @order, @tickDateTime, ST_SetSRID(ST_MakePoint(@latitude, @longtitude),4326))
+                                        (@tripId, @order, @tickDateTime, ST_SetSRID(ST_MakePoint(@longtitude, @latitude), 4326))
                                     RETURNING id";
                                         //(@tripId, @tickDateTime, ST_SetSRID(ST_MakePoint(@latitude, @long), 4326))";
                     long insertedTripTickId = await db.QueryFirstAsync<long>(sql, new { tripId = tripId, order = order, latitude = latitude, longtitude = longtitude, tickDateTime = tickDateTime });
