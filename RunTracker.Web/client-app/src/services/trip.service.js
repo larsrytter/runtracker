@@ -6,7 +6,7 @@ let ActiveTripService = class ActiveTripService extends Vue {
     constructor() {
         super(...arguments);
         this._currentTrip = null;
-        this._tripTickIntervalDuration = 2000;
+        this._tripTickIntervalDuration = 3000;
     }
     GetActiveTrip() {
         // let activityTypeId: number = 1;
@@ -61,13 +61,23 @@ let ActiveTripService = class ActiveTripService extends Vue {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(tripTick)
         };
-        debugger;
         const response = await fetch(url, requestOptions);
         this._currentTrip = await response.json();
     }
-    async EndTrip() {
+    async EndCurrentTrip() {
         clearInterval(this._tripTickInterval);
-        //TODO: End trip in API
+        const tripGuid = this._currentTrip ? this._currentTrip.tripGuid : null;
+        if (!tripGuid) {
+            return;
+        }
+        const url = `/trip/${tripGuid}/close`;
+        const requestOptions = {
+            method: "GET",
+        };
+        const response = await fetch(url, requestOptions);
+        if (response.ok) {
+            this._currentTrip = await response.json();
+        }
     }
 };
 ActiveTripService = __decorate([

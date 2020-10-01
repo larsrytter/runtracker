@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import TripModel from './../models/trip.model'
 import TripService from './../services/trip.service';
 
@@ -20,11 +20,25 @@ import TripService from './../services/trip.service';
 export default class ActiveTrip extends TripService {
     // @Prop() private currentTrip: TripModel | null = null;
 
+    // public isTripActive: string;
 
-    get isTripActive(): boolean {
-        let currentTrip: TripModel|null = this.GetActiveTrip();
-        let isTripActive: boolean = (currentTrip && currentTrip.timeEnd === null) ? true : false;
-        return isTripActive;
+    // @Watch('isTripActive')
+
+    private hasActiveTrip: boolean = false;
+
+    public get isTripActive(): boolean {
+        console.log(this.hasActiveTrip, 'isTripActive');
+        return this.hasActiveTrip;
+
+        // let currentTrip: TripModel|null = this.GetActiveTrip();
+        // let isTripActive: boolean = (currentTrip && currentTrip.timeEnd === null) ? true : false;
+        // console.log(isTripActive, 'isTripActive');
+        // return isTripActive;
+    }
+
+    public set isTripActive(val: boolean) {
+        this.hasActiveTrip = val;
+        console.log(this.hasActiveTrip, 'isTripActive');
     }
     
     startTrip() {
@@ -33,6 +47,7 @@ export default class ActiveTrip extends TripService {
             console.log('start trip');
 
             this.StartNewTrip().then((trip:TripModel) => {
+                this.isTripActive = true;
                 // this.currentTrip = trip;
                 
                 // console.log(this.currentTrip);
@@ -42,7 +57,10 @@ export default class ActiveTrip extends TripService {
     }
 
     endTrip() {
-        this.EndCurrentTrip();
+        this.EndCurrentTrip().then(() => {
+            this.isTripActive = false;
+        });
+        
     }
 
     // created() {
