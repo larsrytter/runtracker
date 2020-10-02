@@ -18,16 +18,10 @@ import TripService from './../services/trip.service';
 
 @Component
 export default class ActiveTrip extends TripService {
-    // @Prop() private currentTrip: TripModel | null = null;
-
-    // public isTripActive: string;
-
-    // @Watch('isTripActive')
 
     private hasActiveTrip: boolean = false;
 
     public get isTripActive(): boolean {
-        console.log(this.hasActiveTrip, 'isTripActive');
         return this.hasActiveTrip;
 
         // let currentTrip: TripModel|null = this.GetActiveTrip();
@@ -38,11 +32,22 @@ export default class ActiveTrip extends TripService {
 
     public set isTripActive(val: boolean) {
         this.hasActiveTrip = val;
-        console.log(this.hasActiveTrip, 'isTripActive');
+    }
+
+    public created() {
+      this.GetActiveTrip().then((trip: TripModel|null) => {
+          console.log('trip', trip);
+          if(trip !== null) {
+              this.isTripActive = true;
+          } else {
+              this.isTripActive = false;
+          }
+
+      });
     }
     
-    startTrip() {
-        let currentTrip: TripModel|null = this.GetActiveTrip();
+    async startTrip() {
+        let currentTrip: TripModel|null = await this.GetActiveTrip();
         if(!currentTrip || currentTrip.timeEnd !== null) {
             console.log('start trip');
 

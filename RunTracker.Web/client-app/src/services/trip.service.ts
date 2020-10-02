@@ -12,7 +12,7 @@ export default class ActiveTripService extends Vue {
     private _tripTickInterval: any;
     private _tripTickIntervalDuration: number = 3000;
 
-    public GetActiveTrip(): TripModel | null {
+    public async GetActiveTrip(): Promise<TripModel | null> {
         // let activityTypeId: number = 1;
         // const tmpTrip: TripModel = {
         //     ActivityTypeId: activityTypeId,
@@ -21,6 +21,18 @@ export default class ActiveTripService extends Vue {
         //     TripGuid: 'weifuhwef7823ry238h'
         // };
         // return tmpTrip; 
+
+        const url = '/trip/opentrips';
+        const requestOptions = {
+            method: 'GET'
+        };
+        const response = await fetch(url, requestOptions);
+        let trips: TripModel[] = await response.json() as TripModel[];
+        console.log(response, 'response');
+        if(trips && trips.length > 0) {
+            this._currentTrip = trips[0];
+        }
+
         return this._currentTrip;
     }
 
