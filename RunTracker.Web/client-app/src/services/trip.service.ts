@@ -9,8 +9,6 @@ import AddTripTickModel from '@/models/add-trip-tick.model';
 export default class ActiveTripService extends Vue {
 
     private _currentTrip: TripModel | null = null;
-    private _tripTickInterval: any;
-    private _tripTickIntervalDuration: number = 4000;
 
     public async GetActiveTrip(): Promise<TripModel | null> {
         // let activityTypeId: number = 1;
@@ -51,26 +49,7 @@ export default class ActiveTripService extends Vue {
         const url = '/trip/create';
         const response = await fetch(url, requestOptions);
         this._currentTrip = await response.json() as TripModel;
-        this.StartTripTicksInterval();
         return this._currentTrip;
-    }
-
-    public StartTripTicksInterval() {
-        console.log('StartTripTicksInterval');
-        this._tripTickInterval = window.setInterval( () => {
-
-            this.getPosition().then(position => {
-                const lat = position.coords.latitude;
-                const long = position.coords.longitude;
-                const altitude = position.coords.altitude;
-                const timestamp: number = position.timestamp;
-                console.log('Add triptick ' + timestamp);
-                this.AddTripTick(lat, long).then((promise) => {
-                    console.log('triptick added');
-                });
-            });
-        }, 3000);
-        // }, this._tripTickIntervalDuration);
     }
 
     public async AddTripTick(lat: number, long: number) {
@@ -96,7 +75,6 @@ export default class ActiveTripService extends Vue {
     }
 
     public async EndCurrentTrip() {
-        window.clearInterval(this._tripTickInterval);
         
         const tripGuid = this._currentTrip ? this._currentTrip.tripGuid : null;
         if (!tripGuid)

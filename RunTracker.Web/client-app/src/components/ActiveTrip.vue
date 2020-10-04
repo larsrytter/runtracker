@@ -23,6 +23,8 @@ import TripService from './../services/trip.service';
 export default class ActiveTrip extends TripService {
 
     private hasActiveTrip: boolean = false;
+    private _tripTickInterval: any;
+
     public message = '';
 
     public get isTripActive(): boolean {
@@ -64,9 +66,29 @@ export default class ActiveTrip extends TripService {
                     // this.currentTrip = trip;
                     
                     // console.log(this.currentTrip);
+
+                    this.StartTripTicksInterval();
                 });
             }
         }
+    }
+
+    public StartTripTicksInterval() {
+        
+        this._tripTickInterval = window.setInterval( () => {
+
+            this.getPosition().then(position => {
+                const lat = position.coords.latitude;
+                const long = position.coords.longitude;
+                const altitude = position.coords.altitude;
+                const timestamp: number = position.timestamp;
+                console.log('Add triptick ' + timestamp);
+                this.AddTripTick(lat, long).then((promise) => {
+                    console.log('triptick added');
+                });
+            });
+        }, 3500);
+        // }, this._tripTickIntervalDuration);
     }
 
 
@@ -86,6 +108,7 @@ export default class ActiveTrip extends TripService {
     }
 
     endTrip() {
+        window.clearInterval(this._tripTickInterval);
         this.EndCurrentTrip().then(() => {
             this.isTripActive = false;
         });
