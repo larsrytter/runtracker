@@ -6,9 +6,9 @@ let ActiveTripService = class ActiveTripService extends Vue {
     constructor() {
         super(...arguments);
         this._currentTrip = null;
-        this._tripTickIntervalDuration = 3000;
+        this._tripTickIntervalDuration = 4000;
     }
-    GetActiveTrip() {
+    async GetActiveTrip() {
         // let activityTypeId: number = 1;
         // const tmpTrip: TripModel = {
         //     ActivityTypeId: activityTypeId,
@@ -17,6 +17,16 @@ let ActiveTripService = class ActiveTripService extends Vue {
         //     TripGuid: 'weifuhwef7823ry238h'
         // };
         // return tmpTrip; 
+        const url = '/trip/opentrips';
+        const requestOptions = {
+            method: 'GET'
+        };
+        const response = await fetch(url, requestOptions);
+        let trips = await response.json();
+        console.log(response, 'response');
+        if (trips && trips.length > 0) {
+            this._currentTrip = trips[0];
+        }
         return this._currentTrip;
     }
     async StartNewTrip() {
@@ -36,15 +46,20 @@ let ActiveTripService = class ActiveTripService extends Vue {
         return this._currentTrip;
     }
     StartTripTicksInterval() {
-        this._tripTickInterval = setInterval(async () => {
-            navigator.geolocation.getCurrentPosition(async (position) => {
+        console.log('StartTripTicksInterval');
+        this._tripTickInterval = window.setInterval(() => {
+            this.getPosition().then(position => {
                 const lat = position.coords.latitude;
                 const long = position.coords.longitude;
                 const altitude = position.coords.altitude;
                 const timestamp = position.timestamp;
-                await this.AddTripTick(lat, long);
+                console.log('Add triptick ' + timestamp);
+                this.AddTripTick(lat, long).then((promise) => {
+                    console.log('triptick added');
+                });
             });
-        }, this._tripTickIntervalDuration);
+        }, 3000);
+        // }, this._tripTickIntervalDuration);
     }
     async AddTripTick(lat, long) {
         const tripTick = {
@@ -65,7 +80,7 @@ let ActiveTripService = class ActiveTripService extends Vue {
         this._currentTrip = await response.json();
     }
     async EndCurrentTrip() {
-        clearInterval(this._tripTickInterval);
+        window.clearInterval(this._tripTickInterval);
         const tripGuid = this._currentTrip ? this._currentTrip.tripGuid : null;
         if (!tripGuid) {
             return;
@@ -78,6 +93,11 @@ let ActiveTripService = class ActiveTripService extends Vue {
         if (response.ok) {
             this._currentTrip = await response.json();
         }
+    }
+    getPosition() {
+        return new Promise(function (resolve, reject) {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
     }
 };
 ActiveTripService = __decorate([

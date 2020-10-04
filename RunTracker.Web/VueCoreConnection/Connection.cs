@@ -40,6 +40,7 @@ namespace RunTracker.Web.VueCoreConnection
                 {
                     FileName = isWindows ? "cmd" : "npm",
                     Arguments = $"{(isWindows ? "/c npm " : "")}run serve",
+                    //WorkingDirectory = "client-app/dist",
                     WorkingDirectory = "client-app",
                     RedirectStandardError = true,
                     RedirectStandardInput = true,

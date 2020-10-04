@@ -1,12 +1,15 @@
 <template>
     <div>
-        <p v-if="isTripActive">
-            Active trip
+        <div v-if="isTripActive">
+            <p>Active trip</p>
             <button type="button" v-on:click="endTrip()">Finish the trip</button>
-        </p>
+        </div>
         <div v-else>
             No active trip
             <button type="button" v-on:click="startTrip()">Start a new trip</button>
+        </div>
+        <div>
+            {{ message }}
         </div>
     </div>
 </template>
@@ -20,6 +23,7 @@ import TripService from './../services/trip.service';
 export default class ActiveTrip extends TripService {
 
     private hasActiveTrip: boolean = false;
+    public message = '';
 
     public get isTripActive(): boolean {
         return this.hasActiveTrip;
@@ -36,13 +40,13 @@ export default class ActiveTrip extends TripService {
 
     public created() {
       this.GetActiveTrip().then((trip: TripModel|null) => {
-          console.log('trip', trip);
-          if(trip !== null) {
-              this.isTripActive = true;
-          } else {
-              this.isTripActive = false;
-          }
-
+        if (trip === null) {
+            this.isTripActive = false;
+        } else if (trip && trip.timeEnd === null) {
+            this.isTripActive = true;
+        } else {
+            this.isTripActive = false;
+        }
       });
     }
     
@@ -51,13 +55,33 @@ export default class ActiveTrip extends TripService {
         if(!currentTrip || currentTrip.timeEnd !== null) {
             console.log('start trip');
 
-            this.StartNewTrip().then((trip:TripModel) => {
-                this.isTripActive = true;
-                // this.currentTrip = trip;
-                
-                // console.log(this.currentTrip);
-            });
+            const positionOrFalse = await this.ensureDeviceLocationEnabled();
+            if (!positionOrFalse) {
+                this.message = 'Could not get position of device. You need to allow position for app.'
+            } else {
+                this.StartNewTrip().then((trip:TripModel) => {
+                    this.isTripActive = true;
+                    // this.currentTrip = trip;
+                    
+                    // console.log(this.currentTrip);
+                });
+            }
+        }
+    }
 
+
+
+    async ensureDeviceLocationEnabled(): Promise<Position | false> {
+        try {
+            const position: Position = await this.getPosition();
+            return position;
+        } catch(error) {
+            if (error.code == error.PERMISSION_DENIED) {
+                console.warn('Cannot get position - permission denied. ');
+            } else {
+                console.warn('Cannot get position from device.');
+            }
+            return false;
         }
     }
 
