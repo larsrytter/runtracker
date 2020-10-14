@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Runtracker.Domain.Dal.Model;
 using Runtracker.Domain.Dal.Repository;
 using RunTracker.DtoModel;
+using RunTracker.Web.DtoModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,6 +66,26 @@ namespace RunTracker.Controllers
 
             IMapper mapper = config.CreateMapper();
             result = mapper.Map<Trip, TripDto>(trip);
+
+            return result;
+        }
+
+        [HttpGet]
+        [Route("/trip/{tripGuid}/extended")]
+        public async Task<TripExtendedDto> GetTripExtendedByGuid(Guid tripGuid)
+        {
+            TripExtendedDto result = null;
+            long userId = GetUserId();
+            TripExtended  trip = await _tripRepository.GetTripExtendedByGuidAndUserId(tripGuid, userId);
+            if(trip != null)
+            {
+                MapperConfiguration config = new MapperConfiguration(cfg => {
+                    cfg.CreateMap<TripExtended, TripExtendedDto>();
+                });
+                IMapper mapper = config.CreateMapper();
+
+                result = mapper.Map<TripExtended, TripExtendedDto>(trip);
+            }
 
             return result;
         }

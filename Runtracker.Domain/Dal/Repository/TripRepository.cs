@@ -168,5 +168,43 @@ namespace Runtracker.Domain.Dal.Repository
             }
             return trips;
         }
+
+        public async Task<TripExtended> GetTripExtendedByGuidAndUserId(Guid tripGuid, long userId)
+        {
+            TripExtended trip = null;
+            using (IDbConnection db = GetConnection())
+            {
+                try
+                {
+                    string sql = @"SELECT 
+                                        id AS Id, 
+                                        trip_guid AS TripGuid,
+                                        user_id as UserId,
+                                        activity_type_id AS ActivityTypeId, 
+                                        time_start AS TimeStart, 
+                                        time_end AS TimeEnd,
+                                        ST_AsText(
+	                                        ST_MakeLine(
+		                                        ARRAY( 
+			                                        SELECT ST_GeometricMedian(geom) FROM public.trip_tick WHERE trip_id=trip.id ORDER BY ""order"" ASC
+		                                        ) 
+	                                        )
+                                        ) AS wkt
+                                    FROM
+                                        trip
+                                    WHERE
+                                        trip_guid = @tripGuid
+                                        AND
+                                        user_id = @userId";
+                    trip = await db.QueryFirstOrDefaultAsync<TripExtended>(sql, new { tripGuid = tripGuid, userId = userId });
+                }
+                catch(Exception ex)
+                {
+                    throw;
+                }
+            }
+            return trip;
+        }
+
     }
 }

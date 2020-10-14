@@ -7,8 +7,6 @@ let ActiveTripService = class ActiveTripService extends Vue {
         super(...arguments);
         this._currentTrip = null;
     }
-    // private _tripTickInterval: any;
-    // private _tripTickIntervalDuration: number = 4000;
     async GetActiveTrip() {
         // let activityTypeId: number = 1;
         // const tmpTrip: TripModel = {
@@ -43,24 +41,8 @@ let ActiveTripService = class ActiveTripService extends Vue {
         const url = '/trip/create';
         const response = await fetch(url, requestOptions);
         this._currentTrip = await response.json();
-        // this.StartTripTicksInterval();
         return this._currentTrip;
     }
-    // public StartTripTicksInterval() {
-    //     this._tripTickInterval = window.setInterval( () => {
-    //         this.getPosition().then(position => {
-    //             const lat = position.coords.latitude;
-    //             const long = position.coords.longitude;
-    //             const altitude = position.coords.altitude;
-    //             const timestamp: number = position.timestamp;
-    //             console.log('Add triptick ' + timestamp);
-    //             this.AddTripTick(lat, long).then((promise) => {
-    //                 console.log('triptick added');
-    //             });
-    //         });
-    //     }, 3500);
-    //     // }, this._tripTickIntervalDuration);
-    // }
     async AddTripTick(lat, long) {
         const tripTick = {
             lat: lat,
@@ -77,10 +59,10 @@ let ActiveTripService = class ActiveTripService extends Vue {
             body: JSON.stringify(tripTick)
         };
         const response = await fetch(url, requestOptions);
-        this._currentTrip = await response.json();
+        // this._currentTrip = await response.json() as TripModel;
+        return;
     }
     async EndCurrentTrip() {
-        // window.clearInterval(this._tripTickInterval);
         const tripGuid = this._currentTrip ? this._currentTrip.tripGuid : null;
         if (!tripGuid) {
             return;
@@ -98,6 +80,18 @@ let ActiveTripService = class ActiveTripService extends Vue {
         return new Promise(function (resolve, reject) {
             navigator.geolocation.getCurrentPosition(resolve, reject);
         });
+    }
+    async getTripExtended(tripGuid) {
+        let tripExtended = null;
+        const url = `/trip/${tripGuid}/extended`;
+        const requestOptions = {
+            method: "GET",
+        };
+        const response = await fetch(url, requestOptions);
+        if (response.ok) {
+            tripExtended = await response.json();
+        }
+        return tripExtended;
     }
 };
 ActiveTripService = __decorate([

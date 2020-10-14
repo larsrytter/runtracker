@@ -13,7 +13,6 @@ import ActiveTrip from './components/ActiveTrip.vue';
 import TripService from './services/trip.service';
 import Vuex from 'vuex';
 
-
 @Component({
   components: {
     ActiveTrip
@@ -26,7 +25,7 @@ import Vuex from 'vuex';
 export default class App extends Mixins(TripService) {
   private _tripService: TripService | null = null;
   public created() {
-    console.log('Vue created');
+    // console.log('Vue created');
     // this._tripService = 
   } 
 }

@@ -11,19 +11,35 @@
         <div>
             {{ message }}
         </div>
+        <div>
+            <active-trip-map
+            v-bind:trip="tripExtended"
+            v-bind:center="position" />
+        </div>
+        
     </div>
 </template>
 
 <script lang="ts">
+import TripExtendedModel from '@/models/trip-extended.model';
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import TripModel from './../models/trip.model'
 import TripService from './../services/trip.service';
+import ActiveTripMap from './ActiveTripMap.vue';
 
-@Component
+@Component({
+    components: {
+        ActiveTripMap
+    }
+})
 export default class ActiveTrip extends TripService {
 
     private hasActiveTrip: boolean = false;
     private _tripTickInterval: any;
+    private activeTripGuid: string = '';
+
+    public tripExtended: TripExtendedModel|null = null;
+    public position: [number, number]|null = null;
 
     public message = '';
 
@@ -44,10 +60,14 @@ export default class ActiveTrip extends TripService {
       this.GetActiveTrip().then((trip: TripModel|null) => {
         if (trip === null) {
             this.isTripActive = false;
+            this.activeTripGuid = '';
         } else if (trip && trip.timeEnd === null) {
             this.isTripActive = true;
+            this.activeTripGuid = trip.tripGuid;
+            this.StartTripTicksInterval();
         } else {
             this.isTripActive = false;
+            this.activeTripGuid = '';
         }
       });
     }
@@ -55,7 +75,6 @@ export default class ActiveTrip extends TripService {
     async startTrip() {
         let currentTrip: TripModel|null = await this.GetActiveTrip();
         if(!currentTrip || currentTrip.timeEnd !== null) {
-            console.log('start trip');
 
             const positionOrFalse = await this.ensureDeviceLocationEnabled();
             if (!positionOrFalse) {
@@ -63,9 +82,7 @@ export default class ActiveTrip extends TripService {
             } else {
                 this.StartNewTrip().then((trip:TripModel) => {
                     this.isTripActive = true;
-                    // this.currentTrip = trip;
-                    
-                    // console.log(this.currentTrip);
+                    this.activeTripGuid = trip.tripGuid;
 
                     this.StartTripTicksInterval();
                 });
@@ -76,15 +93,22 @@ export default class ActiveTrip extends TripService {
     public StartTripTicksInterval() {
         
         this._tripTickInterval = window.setInterval( () => {
-
             this.getPosition().then(position => {
                 const lat = position.coords.latitude;
                 const long = position.coords.longitude;
                 const altitude = position.coords.altitude;
                 const timestamp: number = position.timestamp;
+                this.position = [long, lat];
                 console.log('Add triptick ' + timestamp);
                 this.AddTripTick(lat, long).then((promise) => {
-                    console.log('triptick added');
+                    // console.log('triptick added');
+                    console.log(this.activeTripGuid, 'this.activeTripGuid');
+                    if(this.activeTripGuid) {
+                        this.getTripExtended(this.activeTripGuid).then((tripExtended: TripExtendedModel|null) => {
+                            this.tripExtended = tripExtended;
+                        });
+                    }
+                    
                 });
             });
         }, 3500);
@@ -114,9 +138,5 @@ export default class ActiveTrip extends TripService {
         });
         
     }
-
-    // created() {
-    //     let currentTrip: TripModel|null = this.GetActiveTrip();
-    // }
 }
 </script>

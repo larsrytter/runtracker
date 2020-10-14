@@ -3,6 +3,7 @@ import CreateTripModel from '@/models/create-trip.model';
 import Vue from 'vue';
 import Component from 'vue-class-component'
 import AddTripTickModel from '@/models/add-trip-tick.model';
+import TripExtendedModel from '@/models/trip-extended.model';
 // import { interval, Subscription } from 'rxjs';
 
 @Component
@@ -71,7 +72,8 @@ export default class ActiveTripService extends Vue {
         };
 
         const response = await fetch(url, requestOptions);
-        this._currentTrip = await response.json() as TripModel;
+        // this._currentTrip = await response.json() as TripModel;
+        return;
     }
 
     public async EndCurrentTrip() {
@@ -95,5 +97,18 @@ export default class ActiveTripService extends Vue {
         return new Promise(function(resolve, reject) {
           navigator.geolocation.getCurrentPosition(resolve, reject);
         });
-      }
+    }
+
+    public async getTripExtended(tripGuid: string): Promise<TripExtendedModel|null> {
+        let tripExtended: TripExtendedModel|null = null;
+        const url = `/trip/${tripGuid}/extended`;
+        const requestOptions = {
+            method: "GET",
+        };
+        const response = await fetch(url, requestOptions);
+        if (response.ok) {
+            tripExtended = await response.json() as TripExtendedModel;
+        }
+        return tripExtended;
+    }
 }
