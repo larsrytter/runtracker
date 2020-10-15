@@ -16,7 +16,9 @@ import WKT from 'ol/format/WKT';
 import VectorLayer from 'ol/layer/Vector';
 import Feature from 'ol/Feature';
 import Geometry from 'ol/geom/Geometry';
-// import { fromLonLat } from 'ol/proj';
+// Problems with using exported types from ol/proj in typescript
+const fromLonLat = (<any>require('ol/proj')).fromLonLat;
+
 
 @Component
 export default class ActiveTripMap extends Vue {
@@ -42,7 +44,7 @@ export default class ActiveTripMap extends Vue {
         if(this._vectorLayer) {
             let features = this._vectorLayer.getSource().getFeatures();
 
-            features.map(feature => {
+            features.map((feature: Feature) => {
                 this._vectorLayer.getSource().removeFeature(feature);
             });
 
@@ -59,9 +61,8 @@ export default class ActiveTripMap extends Vue {
                 if(this._map) {
                     if(this.center)
                     {
-                        // TODO: Transform center coords from lonLat
-                        // const centerTransformed = fromLonLat(this.center);
-                        // this._map.getView().setCenter(centerTransformed);
+                        const centerTransformed = fromLonLat(this.center);
+                        this._map.getView().setCenter(centerTransformed);
                     } else {
                         this._map.getView().fit(geometry.getExtent(), {padding: [170, 50, 30, 150]});
                     }
@@ -103,6 +104,6 @@ export default class ActiveTripMap extends Vue {
 <style scoped>
       .map {
         width: 100%;
-        height:400px;
+        height:50vh;
       }
 </style>
