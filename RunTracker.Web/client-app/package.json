@@ -13,7 +13,8 @@
     "vue-property-decorator": "^9.0.0",
     "vue-router": "^3.4.3",
     "vuex": "^3.5.1",
-    "ol": "6.4.3"
+    "ol": "6.4.3",
+    "wakelock-lazy-polyfill": "1.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.5.4",

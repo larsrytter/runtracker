@@ -26,6 +26,7 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator';
 import TripModel from './../models/trip.model'
 import TripService from './../services/trip.service';
 import ActiveTripMap from './ActiveTripMap.vue';
+import 'wakelock-lazy-polyfill/dist/wakelock-polyfill.umd';
 
 @Component({
     components: {
@@ -37,6 +38,7 @@ export default class ActiveTrip extends TripService {
     private hasActiveTrip: boolean = false;
     private _tripTickInterval: any;
     private activeTripGuid: string = '';
+    private _wakeLockObj: any;
 
     public tripExtended: TripExtendedModel|null = null;
     public position: [number, number]|null = null;
@@ -45,11 +47,6 @@ export default class ActiveTrip extends TripService {
 
     public get isTripActive(): boolean {
         return this.hasActiveTrip;
-
-        // let currentTrip: TripModel|null = this.GetActiveTrip();
-        // let isTripActive: boolean = (currentTrip && currentTrip.timeEnd === null) ? true : false;
-        // console.log(isTripActive, 'isTripActive');
-        // return isTripActive;
     }
 
     public set isTripActive(val: boolean) {
@@ -91,6 +88,18 @@ export default class ActiveTrip extends TripService {
     }
 
     public StartTripTicksInterval() {
+
+        // Request wakeLock to prevent screen from locking and making app pause/hibernate
+        // TODO: Can this be solved using service-worker instead?
+        if ('wakeLock' in navigator) {
+            (navigator as any).wakeLock.request('screen').then((lock: any) => {
+                this._wakeLockObj = lock;
+            }).catch(() => {
+                // cannot get screen wake lock
+            })
+        } else {
+            // console.log('Not supported 😐');
+        }
         
         this._tripTickInterval = window.setInterval( () => {
             this.getPosition().then(position => {
@@ -111,7 +120,7 @@ export default class ActiveTrip extends TripService {
                     
                 });
             });
-        }, 3500);
+        }, 3200);
         // }, this._tripTickIntervalDuration);
     }
 
@@ -135,6 +144,11 @@ export default class ActiveTrip extends TripService {
         window.clearInterval(this._tripTickInterval);
         this.EndCurrentTrip().then(() => {
             this.isTripActive = false;
+
+            if (this._wakeLockObj) {
+                this._wakeLockObj.release();
+                this._wakeLockObj = null;
+            }
         });
         
     }
