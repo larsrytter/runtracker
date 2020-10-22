@@ -32,7 +32,7 @@ namespace Runtracker.Domain.Dal.Repository
             return db;
         }
 
-        public async Task<TripTick> AddTripTick(long tripId, int order, decimal latitude, decimal longtitude, DateTime tickDateTime)
+        public async Task<TripTick> AddTripTick(long tripId, int order, decimal latitude, decimal longtitude, decimal? altitude, DateTime tickDateTime)
         {
             TripTick result;
             using (IDbConnection db = GetConnection())
@@ -40,12 +40,12 @@ namespace Runtracker.Domain.Dal.Repository
                 try
                 {
                     string sql = @"INSERT INTO 
-                                        trip_tick (""trip_id"", ""order"", ""tick_time"", ""geom"") 
+                                        trip_tick (""trip_id"", ""order"", ""tick_time"", ""geom"", ""altitude"") 
                                     VALUES 
-                                        (@tripId, @order, @tickDateTime, ST_SetSRID(ST_MakePoint(@longtitude, @latitude), 4326))
+                                        (@tripId, @order, @tickDateTime, ST_SetSRID(ST_MakePoint(@longtitude, @latitude), 4326), @altitude)
                                     RETURNING id";
                                         //(@tripId, @tickDateTime, ST_SetSRID(ST_MakePoint(@latitude, @long), 4326))";
-                    long insertedTripTickId = await db.QueryFirstAsync<long>(sql, new { tripId = tripId, order = order, latitude = latitude, longtitude = longtitude, tickDateTime = tickDateTime });
+                    long insertedTripTickId = await db.QueryFirstAsync<long>(sql, new { tripId = tripId, order = order, latitude = latitude, longtitude = longtitude, altitude = altitude, tickDateTime = tickDateTime });
 
                     result = await GetByIdOrThrowException(insertedTripTickId);
                 }

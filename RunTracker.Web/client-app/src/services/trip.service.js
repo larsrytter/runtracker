@@ -43,10 +43,11 @@ let ActiveTripService = class ActiveTripService extends Vue {
         this._currentTrip = await response.json();
         return this._currentTrip;
     }
-    async AddTripTick(lat, long) {
+    async AddTripTick(lat, long, altitude) {
         const tripTick = {
             lat: lat,
-            long: long
+            long: long,
+            altitude: altitude
         };
         const tripGuid = this._currentTrip ? this._currentTrip.tripGuid : null;
         if (!tripGuid) {

@@ -9,5 +9,6 @@ namespace RunTracker.DtoModel
     {
         public decimal Lat { get; set; }
         public decimal Long { get; set; }
+        public decimal? Altitude { get; set; }
     }
 }

@@ -53,10 +53,11 @@ export default class ActiveTripService extends Vue {
         return this._currentTrip;
     }
 
-    public async AddTripTick(lat: number, long: number) {
+    public async AddTripTick(lat: number, long: number, altitude: number|null) {
         const tripTick: AddTripTickModel = {
             lat: lat,
-            long: long
+            long: long,
+            altitude: altitude
         };
         const tripGuid = this._currentTrip ? this._currentTrip.tripGuid : null;
         if (!tripGuid)

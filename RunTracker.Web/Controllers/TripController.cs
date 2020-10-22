@@ -139,7 +139,7 @@ namespace RunTracker.Controllers
                                 ? existingTicks.Select(x => x.Order).Max() + 1
                                 : 0;
 
-            TripTick newTick = await _tripTickRepository.AddTripTick(trip.Id, newTickOrder, model.Lat, model.Long, tickTime);
+            TripTick newTick = await _tripTickRepository.AddTripTick(trip.Id, newTickOrder, model.Lat, model.Long, model.Altitude, tickTime);
             existingTicks.Add(newTick);
 
             return Ok();

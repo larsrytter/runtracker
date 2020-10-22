@@ -109,8 +109,7 @@ export default class ActiveTrip extends TripService {
                 const timestamp: number = position.timestamp;
                 this.position = [long, lat];
                 console.log('Add triptick ' + timestamp);
-                this.AddTripTick(lat, long).then((promise) => {
-                    // console.log('triptick added');
+                this.AddTripTick(lat, long, altitude).then((promise) => {
                     console.log(this.activeTripGuid, 'this.activeTripGuid');
                     if(this.activeTripGuid) {
                         this.getTripExtended(this.activeTripGuid).then((tripExtended: TripExtendedModel|null) => {
